@@ -1,0 +1,224 @@
+{
+  "description": "The six requests and the ingest example from slipstream.codes/archer/cookbook.",
+  "cases": [
+    {
+      "name": "stack",
+      "input": "clone reddit.com with laravel and relay",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "relay"
+            ],
+            "span": [
+              17,
+              39
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "database",
+      "input": "clone reddit.com with laravel but use postgres instead of mysql",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel"
+            ],
+            "span": [
+              17,
+              29
+            ]
+          },
+          {
+            "type": "use",
+            "value": "postgres",
+            "instead_of": "mysql",
+            "span": [
+              34,
+              63
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "private",
+      "input": "clone reddit.com and make it private for our company",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "make",
+            "trait": "private for our company",
+            "span": [
+              21,
+              52
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "scope",
+      "input": "clone reddit.com but only posts comments voting and communities",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "only",
+            "items": [
+              "posts",
+              "comments",
+              "voting",
+              "communities"
+            ],
+            "span": [
+              21,
+              63
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "design",
+      "input": "clone reddit.com with laravel and make it look like linear",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel"
+            ],
+            "span": [
+              17,
+              29
+            ]
+          },
+          {
+            "type": "look_like",
+            "ref": "linear",
+            "span": [
+              34,
+              58
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "savor",
+      "input": "clone reddit.com, call it Savor, and tailor it to chefs",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              18,
+              31
+            ]
+          },
+          {
+            "type": "tailor",
+            "audience": "chefs",
+            "span": [
+              37,
+              55
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "ingest brief",
+      "input": "ingest ./reference-notes.md and implement this brief",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "ingest",
+            "path": "./reference-notes.md",
+            "span": [
+              0,
+              27
+            ]
+          },
+          {
+            "type": "text",
+            "text": "implement this brief",
+            "span": [
+              32,
+              52
+            ]
+          }
+        ],
+        "errors": []
+      }
+    }
+  ]
+}

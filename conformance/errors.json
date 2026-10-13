@@ -1,0 +1,509 @@
+{
+  "description": "Error codes, messages and spans.",
+  "cases": [
+    {
+      "name": "empty request",
+      "input": "",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "empty_request",
+            "message": "The request is empty.",
+            "span": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "whitespace only",
+      "input": "   \n\t",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "empty_request",
+            "message": "The request is empty.",
+            "span": [
+              0,
+              5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "connectors only",
+      "input": "and, but then;",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "empty_request",
+            "message": "The request is empty.",
+            "span": [
+              0,
+              14
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "punctuation only",
+      "input": "...",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "empty_request",
+            "message": "The request is empty.",
+            "span": [
+              0,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "clone needs a value",
+      "input": "clone",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"clone\" needs a value.",
+            "span": [
+              0,
+              5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "with needs a value",
+      "input": "clone reddit.com with",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"with\" needs a value.",
+            "span": [
+              17,
+              21
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "clone with no reference",
+      "input": "clone with laravel",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel"
+            ],
+            "span": [
+              6,
+              18
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"clone\" needs a value.",
+            "span": [
+              0,
+              5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "only needs items",
+      "input": "only and",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"only\" needs a value.",
+            "span": [
+              0,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "use needs a value",
+      "input": "use instead of mysql",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"use\" needs a value.",
+            "span": [
+              0,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "instead of needs a value",
+      "input": "use postgres instead of",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"instead of\" needs a value.",
+            "span": [
+              13,
+              23
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "use needs both values",
+      "input": "use instead of",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"use\" needs a value.",
+            "span": [
+              0,
+              3
+            ]
+          },
+          {
+            "code": "missing_value",
+            "message": "\"instead of\" needs a value.",
+            "span": [
+              4,
+              14
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "make it needs a value",
+      "input": "call it Savor and make it",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"make it\" needs a value.",
+            "span": [
+              18,
+              25
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "call it needs a value",
+      "input": "call it",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"call it\" needs a value.",
+            "span": [
+              0,
+              7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty quoted value",
+      "input": "call it \"\"",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"call it\" needs a value.",
+            "span": [
+              0,
+              7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ingest needs a path",
+      "input": "ingest, call it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              8,
+              21
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"ingest\" needs a value.",
+            "span": [
+              0,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ingest at the end",
+      "input": "ingest",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"ingest\" needs a value.",
+            "span": [
+              0,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty quoted path",
+      "input": "ingest \"\"",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"ingest\" needs a value.",
+            "span": [
+              0,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "a path made of dots must be quoted",
+      "input": "ingest ..",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"ingest\" needs a value.",
+            "span": [
+              0,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "a line break is not an ingest path",
+      "input": "ingest\nnotes.md",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "notes.md",
+            "span": [
+              7,
+              15
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"ingest\" needs a value.",
+            "span": [
+              0,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unterminated quote keeps the value",
+      "input": "call it \"Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              14
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "unterminated_quote",
+            "message": "A quoted value is missing its closing quote.",
+            "span": [
+              8,
+              14
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unterminated curly quote",
+      "input": "tailor it to “chefs",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "tailor",
+            "audience": "chefs",
+            "span": [
+              0,
+              19
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "unterminated_quote",
+            "message": "A quoted value is missing its closing quote.",
+            "span": [
+              13,
+              19
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "errors are sorted by position",
+      "input": "call it, tailor it to \"chefs",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "tailor",
+            "audience": "chefs",
+            "span": [
+              9,
+              28
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"call it\" needs a value.",
+            "span": [
+              0,
+              7
+            ]
+          },
+          {
+            "code": "unterminated_quote",
+            "message": "A quoted value is missing its closing quote.",
+            "span": [
+              22,
+              28
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty quoted text is dropped",
+      "input": "\"\"",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "empty_request",
+            "message": "The request is empty.",
+            "span": [
+              0,
+              2
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

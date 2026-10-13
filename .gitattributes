@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+# Keep the Composer package to the PHP parser.
+/.github export-ignore
+/conformance export-ignore
+/examples export-ignore
+/go export-ignore
+/go.mod export-ignore
+/js export-ignore
+/php/tests export-ignore
+/scripts export-ignore

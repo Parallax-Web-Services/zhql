@@ -1,0 +1,238 @@
+{
+  "description": "Multi-line queries as written in .zhql files: line breaks, comments and a byte order mark.",
+  "cases": [
+    {
+      "name": "one clause per line",
+      "input": "clone reddit.com\nwith laravel and relay\ncall it Savor\ntailor it to chefs\n",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "relay"
+            ],
+            "span": [
+              17,
+              39
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              40,
+              53
+            ]
+          },
+          {
+            "type": "tailor",
+            "audience": "chefs",
+            "span": [
+              54,
+              72
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "comment lines are skipped",
+      "input": "# Savor: Reddit for chefs\nclone reddit.com\n  # the stack\nwith laravel\n",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              26,
+              42
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel"
+            ],
+            "span": [
+              57,
+              69
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a comment inside a value becomes a space",
+      "input": "make it fast\n# and also\nand friendly",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "make",
+            "trait": "fast and friendly",
+            "span": [
+              0,
+              36
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a hash that is not followed by a space is text",
+      "input": "#1 recipe app, call it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "#1 recipe app",
+            "span": [
+              0,
+              13
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              15,
+              28
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a hash on its own line is a comment",
+      "input": "#\ncall it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              2,
+              15
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a hash later in a line is text",
+      "input": "tailor it to C# developers",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "tailor",
+            "audience": "C# developers",
+            "span": [
+              0,
+              26
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "byte order mark is ignored",
+      "input": "﻿call it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              1,
+              14
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "comments only",
+      "input": "# nothing yet\n# still nothing\n",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "empty_request",
+            "message": "The request is empty.",
+            "span": [
+              0,
+              30
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "blank lines",
+      "input": "\n\nclone reddit.com\n\n\ncall it Savor\n\n",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              2,
+              18
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              21,
+              34
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a value can start after punctuation",
+      "input": "call it, Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              14
+            ]
+          }
+        ],
+        "errors": []
+      }
+    }
+  ]
+}

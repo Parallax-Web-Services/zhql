@@ -1,0 +1,209 @@
+{
+  "description": "Spans count Unicode code points; keywords match ASCII letters only.",
+  "cases": [
+    {
+      "name": "Cyrillic value",
+      "input": "call it Ж",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Ж",
+            "span": [
+              0,
+              9
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "Cyrillic text before a clause",
+      "input": "привіт, call it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "привіт",
+            "span": [
+              0,
+              6
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              8,
+              21
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "astral characters count as one code point",
+      "input": "call it 🌧️ Rain and tailor it to poets",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "🌧️ Rain",
+            "span": [
+              0,
+              15
+            ]
+          },
+          {
+            "type": "tailor",
+            "audience": "poets",
+            "span": [
+              20,
+              38
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "Cyrillic look-alike letter is not a keyword",
+      "input": "сlone reddit.com",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "сlone reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "dotted capital I is not ASCII",
+      "input": "İNGEST notes.md",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "İNGEST notes.md",
+            "span": [
+              0,
+              15
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "no-break space separates words",
+      "input": "call it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "ideographic space separates words",
+      "input": "call it　Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "line separator is a line break",
+      "input": "clone reddit.com call it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              17,
+              30
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "zero-width space is not whitespace",
+      "input": "call it Sa​vor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Sa​vor",
+            "span": [
+              0,
+              14
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "accented value",
+      "input": "tailor it to pâtissiers",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "tailor",
+            "audience": "pâtissiers",
+            "span": [
+              0,
+              23
+            ]
+          }
+        ],
+        "errors": []
+      }
+    }
+  ]
+}

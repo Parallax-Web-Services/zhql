@@ -1,0 +1,19 @@
+{
+    "name": "parallax/zhql",
+    "description": "Parser for ЖQL (zhql), the Zero-Hassle Query Language",
+    "keywords": ["zhql", "slipstream", "zefram", "parser"],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zhql\\": "php/src/"
+        }
+    },
+    "bin": ["php/bin/zhql"],
+    "scripts": {
+        "test": "php php/tests/conformance.php"
+    }
+}

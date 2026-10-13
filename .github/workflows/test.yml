@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: '0'
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      # Failing lines become annotations, which remain readable without signing
+      # in to download the job log.
+      - name: PHP
+        run: php php/tests/conformance.php 2>php.err || { cat php.err; grep '^FAIL' php.err | head -40 | sed 's/^/::error title=PHP::/'; exit 1; }
+      - name: JavaScript
+        run: (cd js && npm test) | tee js.out || { grep -E '^not ok' js.out | head -40 | sed 's/^/::error title=JavaScript::/'; exit 1; }
+      - name: Go
+        run: |
+          test -z "$(gofmt -l go/)" || { echo "::error title=gofmt::$(gofmt -l go/ | tr '\n' ' ')"; exit 1; }
+          go vet ./...
+          go test -count=1 ./... | tee go.out || { grep -E -- '--- FAIL|_test\.go:[0-9]+' go.out | head -40 | sed 's/^/::error title=Go::/'; exit 1; }
+      - name: Identical output from all three
+        run: node scripts/crosscheck.mjs 2>cross.err || { cat cross.err; grep '^DIFFERENT' cross.err | head -40 | sed 's/^/::error title=Crosscheck::/'; exit 1; }

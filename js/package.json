@@ -1,0 +1,24 @@
+{
+  "name": "zhql",
+  "version": "0.1.0",
+  "description": "Parser for ЖQL (zhql), the Zero-Hassle Query Language",
+  "keywords": ["zhql", "slipstream", "zefram", "parser"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Parallax-Web-Services/zhql.git",
+    "directory": "js"
+  },
+  "type": "module",
+  "exports": "./src/index.js",
+  "bin": {
+    "zhql": "./bin/zhql.js"
+  },
+  "files": ["src", "bin"],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/conformance.test.js"
+  }
+}

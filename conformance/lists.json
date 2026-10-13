@@ -1,0 +1,239 @@
+{
+  "description": "Item lists for \"with\" and \"only\".",
+  "cases": [
+    {
+      "name": "space-separated items",
+      "input": "but only posts comments voting",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "only",
+            "items": [
+              "posts",
+              "comments",
+              "voting"
+            ],
+            "span": [
+              4,
+              30
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "and separates items",
+      "input": "with laravel and relay and postgres",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "relay",
+              "postgres"
+            ],
+            "span": [
+              0,
+              35
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "commas allow multi-word items",
+      "input": "but only posts, direct messages, communities",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "only",
+            "items": [
+              "posts",
+              "direct messages",
+              "communities"
+            ],
+            "span": [
+              4,
+              44
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "oxford comma",
+      "input": "only posts, comments, and voting",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "only",
+            "items": [
+              "posts",
+              "comments",
+              "voting"
+            ],
+            "span": [
+              0,
+              32
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "quoted multi-word item without commas",
+      "input": "only posts \"direct messages\" voting",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "only",
+            "items": [
+              "posts",
+              "direct messages",
+              "voting"
+            ],
+            "span": [
+              0,
+              35
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "semicolons separate items",
+      "input": "with laravel; relay",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "relay"
+            ],
+            "span": [
+              0,
+              19
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "every connector separates items",
+      "input": "with laravel then relay but postgres",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "relay",
+              "postgres"
+            ],
+            "span": [
+              0,
+              36
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "line breaks separate items",
+      "input": "only\nposts\ndirect messages\nvoting",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "only",
+            "items": [
+              "posts",
+              "direct messages",
+              "voting"
+            ],
+            "span": [
+              0,
+              33
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "list ends at a keyword",
+      "input": "with laravel and relay, call it Savor",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "relay"
+            ],
+            "span": [
+              0,
+              22
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              24,
+              37
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "with list from a clone",
+      "input": "clone reddit.com with laravel, relay and postgres",
+      "expect": {
+        "zhql": "0.1",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "relay",
+              "postgres"
+            ],
+            "span": [
+              17,
+              49
+            ]
+          }
+        ],
+        "errors": []
+      }
+    }
+  ]
+}

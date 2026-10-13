@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+// Parses a ЖQL request and prints the result as JSON.
+//
+//   zhql "clone reddit.com, call it Savor"   parse the arguments as one request
+//   zhql savor.zhql                          parse a query file
+//   echo "call it Savor" | zhql              parse standard input
+//
+// --pretty indents the output. Exits 1 when the result has errors.
+
+foreach ([__DIR__.'/../../vendor/autoload.php', __DIR__.'/../../../../autoload.php'] as $autoload) {
+    if (is_file($autoload)) {
+        require $autoload;
+        break;
+    }
+}
+if (! class_exists(Zhql\Parser::class)) {
+    require __DIR__.'/../src/Parser.php';
+}
+
+$args = array_slice($argv, 1);
+$pretty = in_array('--pretty', $args, true);
+$args = array_values(array_filter($args, static fn (string $arg): bool => $arg !== '--pretty'));
+
+if (count($args) === 1 && str_ends_with($args[0], '.zhql') && is_file($args[0])) {
+    $request = file_get_contents($args[0]);
+} elseif ($args === [] || $args === ['-']) {
+    $request = stream_get_contents(STDIN);
+} else {
+    $request = implode(' ', $args);
+}
+
+$result = Zhql\Parser::parse($request);
+
+$flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS | JSON_THROW_ON_ERROR;
+echo json_encode($result, $pretty ? $flags | JSON_PRETTY_PRINT : $flags), "\n";
+
+exit($result['errors'] === [] ? 0 : 1);
