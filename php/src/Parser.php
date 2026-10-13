@@ -10,7 +10,7 @@ namespace Zhql;
  */
 final class Parser
 {
-    public const VERSION = '0.1';
+    public const VERSION = '0.2';
 
     private const WHITESPACE = [
         "\u{9}" => true, "\u{A}" => true, "\u{B}" => true, "\u{C}" => true, "\u{D}" => true,
@@ -48,6 +48,9 @@ final class Parser
         [['use'], 'use'],
         [['only'], 'only'],
         [['ingest'], 'ingest'],
+        [['infer'], 'infer'],
+        [['generate'], 'generate'],
+        [['invent'], 'invent'],
     ];
 
     private const CONNECTOR_WORDS = ['and' => true, 'but' => true, 'then' => true];
@@ -55,6 +58,7 @@ final class Parser
     private const SCALAR_FIELD = [
         'clone' => 'ref', 'look_like' => 'ref', 'make' => 'trait',
         'name' => 'name', 'tailor' => 'audience', 'text' => 'text',
+        'infer' => 'subject', 'generate' => 'subject', 'invent' => 'subject',
     ];
 
     /** @var list<string> */

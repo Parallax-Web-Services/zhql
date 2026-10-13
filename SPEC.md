@@ -1,4 +1,4 @@
-# ЖQL 0.1
+# ЖQL 0.2
 
 ЖQL ("Zh", typed `zhql`) is the Zero-Hassle Query Language: a one-line request
 for an application, written in plain words.
@@ -74,6 +74,9 @@ A **keyword** is one of these word sequences, tried longest first:
 | `use` | `use` |
 | `only` | `only` |
 | `ingest` | `ingest` |
+| `infer` | `infer` |
+| `generate` | `generate` |
+| `invent` | `invent` |
 
 The words of a keyword must be consecutive tokens. A line break, comment or
 punctuation between them means they are not a keyword. Quoting any part of a
@@ -135,6 +138,9 @@ Every clause is an object with `type`, the fields below, and `span`.
 | `name` | `name` | scalar |
 | `tailor` | `audience` | scalar |
 | `ingest` | `path` | The value of the next token, which must be a `word` or a non-empty `quoted` token. Otherwise the clause is missing its value, and parsing continues from that token. A path made only of `.`, `!` or `?` must be quoted (`ingest ".."`). |
+| `infer` | `subject` | scalar |
+| `generate` | `subject` | scalar |
+| `invent` | `subject` | scalar |
 | `text` | `text` | scalar of everything up to the boundary |
 
 `span` is `[start, end]`: the offset of the clause's first token (its keyword,
@@ -163,7 +169,7 @@ parsing; the result includes every clause that could be read.
 
 ```json
 {
-  "zhql": "0.1",
+  "zhql": "0.2",
   "clauses": [
     { "type": "clone", "ref": "reddit.com", "span": [0, 16] },
     { "type": "name", "name": "Savor", "span": [18, 31] },

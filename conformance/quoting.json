@@ -5,7 +5,7 @@
       "name": "quoted name",
       "input": "call it \"Make It So\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -23,7 +23,7 @@
       "name": "quoted keyword is not a keyword",
       "input": "call it Savor and \"call it\" Basil",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -41,7 +41,7 @@
       "name": "curly quotes",
       "input": "tailor it to “chefs, bakers and cooks”",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "tailor",
@@ -59,7 +59,7 @@
       "name": "escaped quote",
       "input": "call it \"the \\\"best\\\" app\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -77,7 +77,7 @@
       "name": "escaped backslash",
       "input": "ingest \"C:\\\\notes\\\\brief.md\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "ingest",
@@ -95,7 +95,7 @@
       "name": "quote inside a word is ordinary",
       "input": "tailor it to chef\"s friends",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "tailor",
@@ -113,7 +113,7 @@
       "name": "punctuation inside quotes is kept",
       "input": "call it \"Yahoo!\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -131,7 +131,7 @@
       "name": "quoted value next to words keeps the raw text",
       "input": "tailor it to \"chefs\" and bakers",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "tailor",
@@ -149,7 +149,7 @@
       "name": "text after a closing quote starts a new token",
       "input": "call it \"Savor\"Basil",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -167,7 +167,7 @@
       "name": "single quotes are ordinary characters",
       "input": "call it 'Savor'",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -185,7 +185,7 @@
       "name": "quoted dots are a path",
       "input": "ingest \"..\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "ingest",
@@ -203,7 +203,7 @@
       "name": "control characters inside quotes are kept",
       "input": "call it \"Sa\tv\u0001or\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -221,7 +221,7 @@
       "name": "HTML characters are kept",
       "input": "make it look like \"<b>Tom & Jerry</b>\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "look_like",
@@ -239,7 +239,7 @@
       "name": "a line separator inside quotes is kept",
       "input": "call it \"Sa vor\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",

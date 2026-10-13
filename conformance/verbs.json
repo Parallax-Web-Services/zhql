@@ -1,0 +1,412 @@
+{
+  "description": "The verbs infer, generate and invent.",
+  "cases": [
+    {
+      "name": "infer",
+      "input": "infer the data model from ./menu.csv",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "infer",
+            "subject": "the data model from ./menu.csv",
+            "span": [
+              0,
+              36
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "generate",
+      "input": "generate seed data",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "generate",
+            "subject": "seed data",
+            "span": [
+              0,
+              18
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "invent",
+      "input": "invent a name",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "invent",
+            "subject": "a name",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "verbs after a clone",
+      "input": "clone reddit.com, invent a name and generate seed data",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "invent",
+            "subject": "a name",
+            "span": [
+              18,
+              31
+            ]
+          },
+          {
+            "type": "generate",
+            "subject": "seed data",
+            "span": [
+              36,
+              54
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a chain of verbs",
+      "input": "infer the schema, generate the migrations, then invent a logo",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "infer",
+            "subject": "the schema",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "generate",
+            "subject": "the migrations",
+            "span": [
+              18,
+              41
+            ]
+          },
+          {
+            "type": "invent",
+            "subject": "a logo",
+            "span": [
+              48,
+              61
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "verbs are case-insensitive",
+      "input": "Clone reddit.com. Invent a name! GENERATE seed data.",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "invent",
+            "subject": "a name",
+            "span": [
+              18,
+              31
+            ]
+          },
+          {
+            "type": "generate",
+            "subject": "seed data",
+            "span": [
+              33,
+              51
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "verbs one per line",
+      "input": "clone reddit.com\ninfer the schema from notes.md\ngenerate tests\n",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "infer",
+            "subject": "the schema from notes.md",
+            "span": [
+              17,
+              47
+            ]
+          },
+          {
+            "type": "generate",
+            "subject": "tests",
+            "span": [
+              48,
+              62
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a verb without a connector stays in the value",
+      "input": "build an app that can generate invoices",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "build an app that can generate invoices",
+            "span": [
+              0,
+              39
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a connector before a verb starts a clause",
+      "input": "build an app and generate invoices",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "build an app",
+            "span": [
+              0,
+              12
+            ]
+          },
+          {
+            "type": "generate",
+            "subject": "invoices",
+            "span": [
+              17,
+              34
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a verb inside make it",
+      "input": "make it easy to invent recipes",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "make",
+            "trait": "easy to invent recipes",
+            "span": [
+              0,
+              30
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a verb ends a list",
+      "input": "but only posts, comments and generate tags",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "only",
+            "items": [
+              "posts",
+              "comments"
+            ],
+            "span": [
+              4,
+              24
+            ]
+          },
+          {
+            "type": "generate",
+            "subject": "tags",
+            "span": [
+              29,
+              42
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a verb ends a clone reference only after a connector",
+      "input": "clone reddit.com invent a name",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com invent a name",
+            "span": [
+              0,
+              30
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a quoted verb is text",
+      "input": "call it Savor and \"generate\" more",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor and \"generate\" more",
+            "span": [
+              0,
+              33
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "other forms of the word are text",
+      "input": "and generated reports",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "generated reports",
+            "span": [
+              4,
+              21
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "invent needs a value",
+      "input": "invent",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"invent\" needs a value.",
+            "span": [
+              0,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "generate needs a value",
+      "input": "clone reddit.com and generate",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"generate\" needs a value.",
+            "span": [
+              21,
+              29
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "infer needs a value",
+      "input": "infer, call it Savor",
+      "expect": {
+        "zhql": "0.2",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              7,
+              20
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"infer\" needs a value.",
+            "span": [
+              0,
+              5
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

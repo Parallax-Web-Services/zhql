@@ -1,7 +1,7 @@
 // ЖQL (zhql) reference parser for JavaScript. The behaviour is defined by
 // ../../SPEC.md and checked against ../../conformance; keep the two in step.
 
-export const VERSION = '0.1'
+export const VERSION = '0.2'
 
 const WHITESPACE = new Set([0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x20, 0x85, 0xa0, 0x1680, 0x2028, 0x2029, 0x202f, 0x205f, 0x3000])
 for (let c = 0x2000; c <= 0x200a; c++) WHITESPACE.add(c)
@@ -27,10 +27,16 @@ const KEYWORDS = [
     { words: ['use'], type: 'use' },
     { words: ['only'], type: 'only' },
     { words: ['ingest'], type: 'ingest' },
+    { words: ['infer'], type: 'infer' },
+    { words: ['generate'], type: 'generate' },
+    { words: ['invent'], type: 'invent' },
 ]
 
 const CONNECTOR_WORDS = new Set(['and', 'but', 'then'])
-const SCALAR_FIELD = { clone: 'ref', look_like: 'ref', make: 'trait', name: 'name', tailor: 'audience', text: 'text' }
+const SCALAR_FIELD = {
+    clone: 'ref', look_like: 'ref', make: 'trait', name: 'name', tailor: 'audience', text: 'text',
+    infer: 'subject', generate: 'subject', invent: 'subject',
+}
 
 const MESSAGES = {
     empty_request: () => 'The request is empty.',

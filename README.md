@@ -35,6 +35,9 @@ punctuation, or the words `and`, `but` and `then`:
 | `call it …` / `name it …` | `call it Savor` |
 | `tailor it to …` / `tailor it for …` | `tailor it to chefs` |
 | `ingest …` | `ingest ./reference-notes.md` |
+| `infer …` | `infer the data model from ./menu.csv` |
+| `generate …` | `and generate seed data` |
+| `invent …` | `then invent a logo` |
 
 Anything else is kept as free text. Quotes make anything literal:
 `call it "Make It So"`. A `.zhql` file holds one request and may use one clause

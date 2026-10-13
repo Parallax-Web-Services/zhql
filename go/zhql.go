@@ -11,11 +11,11 @@ import (
 )
 
 // Version is the ЖQL specification version this parser implements.
-const Version = "0.1"
+const Version = "0.2"
 
 // Clause is one part of a request. Only the fields for its Type are set.
 type Clause struct {
-	Type      string   // clone, with, use, only, look_like, make, name, tailor, ingest or text
+	Type      string   // clone, with, use, only, look_like, make, name, tailor, ingest, infer, generate, invent or text
 	Ref       string   // clone, look_like
 	Items     []string // with, only
 	Value     string   // use
@@ -24,6 +24,7 @@ type Clause struct {
 	Name      string   // name
 	Audience  string   // tailor
 	Path      string   // ingest
+	Subject   string   // infer, generate, invent
 	Text      string   // text
 	Span      [2]int   // code point offsets: first token, and just past the last
 }
@@ -67,6 +68,9 @@ var keywords = []keyword{
 	{[]string{"use"}, "use"},
 	{[]string{"only"}, "only"},
 	{[]string{"ingest"}, "ingest"},
+	{[]string{"infer"}, "infer"},
+	{[]string{"generate"}, "generate"},
+	{[]string{"invent"}, "invent"},
 }
 
 var connectorWords = map[string]bool{"and": true, "but": true, "then": true}
@@ -435,6 +439,8 @@ func (p *parser) run() Result {
 				c.Name = value
 			case "tailor":
 				c.Audience = value
+			case "infer", "generate", "invent":
+				c.Subject = value
 			}
 			clauses = append(clauses, c)
 		}

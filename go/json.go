@@ -63,6 +63,8 @@ func (c Clause) object() object {
 		o = append(o, member{"audience", c.Audience})
 	case "ingest":
 		o = append(o, member{"path", c.Path})
+	case "infer", "generate", "invent":
+		o = append(o, member{"subject", c.Subject})
 	case "text":
 		o = append(o, member{"text", c.Text})
 	}

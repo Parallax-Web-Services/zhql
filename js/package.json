@@ -1,6 +1,6 @@
 {
   "name": "zhql",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Parser for ЖQL (zhql), the Zero-Hassle Query Language",
   "keywords": ["zhql", "slipstream", "zefram", "parser"],
   "license": "MIT",

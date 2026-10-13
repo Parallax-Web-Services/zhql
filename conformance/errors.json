@@ -5,7 +5,7 @@
       "name": "empty request",
       "input": "",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -23,7 +23,7 @@
       "name": "whitespace only",
       "input": "   \n\t",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -41,7 +41,7 @@
       "name": "connectors only",
       "input": "and, but then;",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -59,7 +59,7 @@
       "name": "punctuation only",
       "input": "...",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -77,7 +77,7 @@
       "name": "clone needs a value",
       "input": "clone",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -95,7 +95,7 @@
       "name": "with needs a value",
       "input": "clone reddit.com with",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "clone",
@@ -122,7 +122,7 @@
       "name": "clone with no reference",
       "input": "clone with laravel",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "with",
@@ -151,7 +151,7 @@
       "name": "only needs items",
       "input": "only and",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -169,7 +169,7 @@
       "name": "use needs a value",
       "input": "use instead of mysql",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -187,7 +187,7 @@
       "name": "instead of needs a value",
       "input": "use postgres instead of",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -205,7 +205,7 @@
       "name": "use needs both values",
       "input": "use instead of",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -231,7 +231,7 @@
       "name": "make it needs a value",
       "input": "call it Savor and make it",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -258,7 +258,7 @@
       "name": "call it needs a value",
       "input": "call it",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -276,7 +276,7 @@
       "name": "empty quoted value",
       "input": "call it \"\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -294,7 +294,7 @@
       "name": "ingest needs a path",
       "input": "ingest, call it Savor",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -321,7 +321,7 @@
       "name": "ingest at the end",
       "input": "ingest",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -339,7 +339,7 @@
       "name": "empty quoted path",
       "input": "ingest \"\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -357,7 +357,7 @@
       "name": "a path made of dots must be quoted",
       "input": "ingest ..",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
@@ -375,7 +375,7 @@
       "name": "a line break is not an ingest path",
       "input": "ingest\nnotes.md",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "text",
@@ -402,7 +402,7 @@
       "name": "unterminated quote keeps the value",
       "input": "call it \"Savor",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "name",
@@ -429,7 +429,7 @@
       "name": "unterminated curly quote",
       "input": "tailor it to “chefs",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "tailor",
@@ -456,7 +456,7 @@
       "name": "errors are sorted by position",
       "input": "call it, tailor it to \"chefs",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [
           {
             "type": "tailor",
@@ -491,7 +491,7 @@
       "name": "empty quoted text is dropped",
       "input": "\"\"",
       "expect": {
-        "zhql": "0.1",
+        "zhql": "0.2",
         "clauses": [],
         "errors": [
           {
