@@ -5,7 +5,7 @@
       "name": "stack",
       "input": "clone reddit.com with laravel and relay",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -34,7 +34,7 @@
       "name": "database",
       "input": "clone reddit.com with laravel but use postgres instead of mysql",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -71,7 +71,7 @@
       "name": "private",
       "input": "clone reddit.com and make it private for our company",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -97,7 +97,7 @@
       "name": "scope",
       "input": "clone reddit.com but only posts comments voting and communities",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -128,7 +128,7 @@
       "name": "design",
       "input": "clone reddit.com with laravel and make it look like linear",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -164,7 +164,7 @@
       "name": "savor",
       "input": "clone reddit.com, call it Savor, and tailor it to chefs",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -198,7 +198,7 @@
       "name": "ingest brief",
       "input": "ingest ./reference-notes.md and implement this brief",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "ingest",

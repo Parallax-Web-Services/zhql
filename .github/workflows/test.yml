@@ -22,6 +22,8 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
+      - name: License copies match
+        run: cmp LICENSE js/LICENSE && cmp LICENSE python/LICENSE || { echo '::error title=License::js/LICENSE and python/LICENSE must match LICENSE'; exit 1; }
       # Failing lines become annotations, which remain readable without signing
       # in to download the job log.
       - name: PHP
@@ -33,5 +35,7 @@ jobs:
           test -z "$(gofmt -l go/)" || { echo "::error title=gofmt::$(gofmt -l go/ | tr '\n' ' ')"; exit 1; }
           go vet ./...
           go test -count=1 ./... | tee go.out || { grep -E -- '--- FAIL|_test\.go:[0-9]+' go.out | head -40 | sed 's/^/::error title=Go::/'; exit 1; }
-      - name: Identical output from all three
+      - name: Python
+        run: python3 -m unittest discover -s python/tests -v 2>py.err || { cat py.err; grep -E '^(FAIL|ERROR|AssertionError)' py.err | head -40 | sed 's/^/::error title=Python::/'; exit 1; }
+      - name: Identical output from all four
         run: node scripts/crosscheck.mjs 2>cross.err || { cat cross.err; grep '^DIFFERENT' cross.err | head -40 | sed 's/^/::error title=Crosscheck::/'; exit 1; }

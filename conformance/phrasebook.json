@@ -1,0 +1,1798 @@
+{
+  "description": "Personal phrasebooks: aliases for keywords, shorthands for clauses, and the problems a phrasebook can report.",
+  "cases": [
+    {
+      "name": "aliases",
+      "input": "spin up reddit.com, brand it Savor",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              18
+            ],
+            "via": [
+              {
+                "phrase": "spin up",
+                "means": "clone",
+                "span": [
+                  0,
+                  7
+                ]
+              }
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              20,
+              34
+            ],
+            "via": [
+              {
+                "phrase": "brand it",
+                "means": "call it",
+                "span": [
+                  20,
+                  28
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias is case-insensitive",
+      "input": "Spin Up reddit.com",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              18
+            ],
+            "via": [
+              {
+                "phrase": "spin up",
+                "means": "clone",
+                "span": [
+                  0,
+                  7
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a quoted phrase is text",
+      "input": "\"spin up\" reddit.com",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "\"spin up\" reddit.com",
+            "span": [
+              0,
+              20
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a line break inside a phrase means no match",
+      "input": "spin\nup reddit.com",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "spin up reddit.com",
+            "span": [
+              0,
+              18
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a phrase needs a connector before it",
+      "input": "clone reddit.com brand it Savor",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com brand it Savor",
+            "span": [
+              0,
+              31
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a phrase after a connector ends the value",
+      "input": "make it fast and spin up reddit.com",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "make",
+            "trait": "fast",
+            "span": [
+              0,
+              12
+            ]
+          },
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              17,
+              35
+            ],
+            "via": [
+              {
+                "phrase": "spin up",
+                "means": "clone",
+                "span": [
+                  17,
+                  24
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias of with ends a clone reference",
+      "input": "clone reddit.com including laravel",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel"
+            ],
+            "span": [
+              17,
+              34
+            ],
+            "via": [
+              {
+                "phrase": "including",
+                "means": "with",
+                "span": [
+                  17,
+                  26
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias of ingest takes one token",
+      "input": "read notes.md and implement it",
+      "phrasebook": {
+        "read": "ingest"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "ingest",
+            "path": "notes.md",
+            "span": [
+              0,
+              13
+            ],
+            "via": [
+              {
+                "phrase": "read",
+                "means": "ingest",
+                "span": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "implement it",
+            "span": [
+              18,
+              30
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias of use splits at instead of",
+      "input": "go for postgres instead of mysql",
+      "phrasebook": {
+        "go for": "use"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "use",
+            "value": "postgres",
+            "instead_of": "mysql",
+            "span": [
+              0,
+              32
+            ],
+            "via": [
+              {
+                "phrase": "go for",
+                "means": "use",
+                "span": [
+                  0,
+                  6
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias missing its value",
+      "input": "clone reddit.com. spin up",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          }
+        ],
+        "errors": [
+          {
+            "code": "missing_value",
+            "message": "\"spin up\" needs a value.",
+            "span": [
+              18,
+              25
+            ],
+            "via": [
+              {
+                "phrase": "spin up",
+                "means": "clone",
+                "span": [
+                  18,
+                  25
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "a phrase that starts a keyword",
+      "input": "make it fast and make friendly",
+      "phrasebook": {
+        "make": "make it"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "make",
+            "trait": "fast",
+            "span": [
+              0,
+              12
+            ]
+          },
+          {
+            "type": "make",
+            "trait": "friendly",
+            "span": [
+              17,
+              30
+            ],
+            "via": [
+              {
+                "phrase": "make",
+                "means": "make it",
+                "span": [
+                  17,
+                  21
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "the longest phrase wins",
+      "input": "spin up a logo",
+      "phrasebook": {
+        "spin": "clone",
+        "spin up": "invent"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "invent",
+            "subject": "a logo",
+            "span": [
+              0,
+              14
+            ],
+            "via": [
+              {
+                "phrase": "spin up",
+                "means": "invent",
+                "span": [
+                  0,
+                  7
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias meaning in capitals",
+      "input": "kick off reddit.com",
+      "phrasebook": {
+        "kick off": "CLONE"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              19
+            ],
+            "via": [
+              {
+                "phrase": "kick off",
+                "means": "CLONE",
+                "span": [
+                  0,
+                  8
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias can end a value like its keyword",
+      "input": "clone x, aimed with y",
+      "phrasebook": {
+        "aimed": "tailor it to"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "x",
+            "span": [
+              0,
+              7
+            ]
+          },
+          {
+            "type": "tailor",
+            "audience": "with y",
+            "span": [
+              9,
+              21
+            ],
+            "via": [
+              {
+                "phrase": "aimed",
+                "means": "tailor it to",
+                "span": [
+                  9,
+                  14
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an alias of with can cut a clone reference",
+      "input": "clone the app for chefs",
+      "phrasebook": {
+        "for": "with"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "the app",
+            "span": [
+              0,
+              13
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "chefs"
+            ],
+            "span": [
+              14,
+              23
+            ],
+            "via": [
+              {
+                "phrase": "for",
+                "means": "with",
+                "span": [
+                  14,
+                  17
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a non-ASCII phrase",
+      "input": "клон reddit.com",
+      "phrasebook": {
+        "клон": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              15
+            ],
+            "via": [
+              {
+                "phrase": "клон",
+                "means": "clone",
+                "span": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "only ASCII letters ignore case",
+      "input": "КЛОН reddit.com",
+      "phrasebook": {
+        "клон": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "КЛОН reddit.com",
+            "span": [
+              0,
+              15
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand at a clause start",
+      "input": "clone reddit.com, my usual stack",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay"
+            ],
+            "span": [
+              18,
+              32
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  18,
+                  32
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand with several clauses",
+      "input": "clone reddit.com, the savor treatment",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              18,
+              37
+            ],
+            "via": [
+              {
+                "phrase": "the savor treatment",
+                "means": "call it Savor and tailor it to chefs",
+                "span": [
+                  18,
+                  37
+                ]
+              }
+            ]
+          },
+          {
+            "type": "tailor",
+            "audience": "chefs",
+            "span": [
+              18,
+              37
+            ],
+            "via": [
+              {
+                "phrase": "the savor treatment",
+                "means": "call it Savor and tailor it to chefs",
+                "span": [
+                  18,
+                  37
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand followed by text",
+      "input": "my usual stack plus redis",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay"
+            ],
+            "span": [
+              0,
+              14
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  0,
+                  14
+                ]
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "plus redis",
+            "span": [
+              15,
+              25
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand needs no connector after it",
+      "input": "my usual stack call it Savor",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay"
+            ],
+            "span": [
+              0,
+              14
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  0,
+                  14
+                ]
+              }
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              15,
+              28
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand after an ingest path",
+      "input": "ingest notes.md my usual stack",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "ingest",
+            "path": "notes.md",
+            "span": [
+              0,
+              15
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay"
+            ],
+            "span": [
+              16,
+              30
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  16,
+                  30
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand as the whole list",
+      "input": "clone reddit.com with my usual stack",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay"
+            ],
+            "span": [
+              17,
+              36
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  22,
+                  36
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand in the middle of a list",
+      "input": "with redis, my usual stack and horizon",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "redis",
+              "laravel",
+              "postgres",
+              "relay",
+              "horizon"
+            ],
+            "span": [
+              0,
+              38
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  12,
+                  26
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand first in a list",
+      "input": "with my usual stack and redis",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay",
+              "redis"
+            ],
+            "span": [
+              0,
+              29
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  5,
+                  19
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand after an alias",
+      "input": "clone reddit.com including my usual stack",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay"
+            ],
+            "span": [
+              17,
+              41
+            ],
+            "via": [
+              {
+                "phrase": "including",
+                "means": "with",
+                "span": [
+                  17,
+                  26
+                ]
+              },
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  27,
+                  41
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "the same shorthand twice",
+      "input": "with my usual stack and my usual stack",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "laravel",
+              "postgres",
+              "relay",
+              "laravel",
+              "postgres",
+              "relay"
+            ],
+            "span": [
+              0,
+              38
+            ],
+            "via": [
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  5,
+                  19
+                ]
+              },
+              {
+                "phrase": "my usual stack",
+                "means": "with laravel, postgres and relay",
+                "span": [
+                  24,
+                  38
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand of another type ends a list",
+      "input": "with redis and the savor treatment",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "redis"
+            ],
+            "span": [
+              0,
+              10
+            ]
+          },
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              15,
+              34
+            ],
+            "via": [
+              {
+                "phrase": "the savor treatment",
+                "means": "call it Savor and tailor it to chefs",
+                "span": [
+                  15,
+                  34
+                ]
+              }
+            ]
+          },
+          {
+            "type": "tailor",
+            "audience": "chefs",
+            "span": [
+              15,
+              34
+            ],
+            "via": [
+              {
+                "phrase": "the savor treatment",
+                "means": "call it Savor and tailor it to chefs",
+                "span": [
+                  15,
+                  34
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand of another type stays literal in a list",
+      "input": "only my usual stack",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "only",
+            "items": [
+              "my",
+              "usual",
+              "stack"
+            ],
+            "span": [
+              0,
+              19
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a quoted shorthand in a list is literal",
+      "input": "with \"my usual stack\"",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "my usual stack"
+            ],
+            "span": [
+              0,
+              21
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a line break inside a shorthand in a list",
+      "input": "with my\nusual stack",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "my",
+              "usual stack"
+            ],
+            "span": [
+              0,
+              19
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a list group longer than the shorthand is literal",
+      "input": "with my usual stack plus redis",
+      "phrasebook": {
+        "spin up": "clone",
+        "brand it": "call it",
+        "aimed at": "tailor it to",
+        "including": "with",
+        "my usual stack": "with laravel, postgres and relay",
+        "the savor treatment": "call it Savor and tailor it to chefs"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "with",
+            "items": [
+              "my",
+              "usual",
+              "stack",
+              "plus",
+              "redis"
+            ],
+            "span": [
+              0,
+              30
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "a shorthand meaning use",
+      "input": "clone reddit.com, my db",
+      "phrasebook": {
+        "my db": "use postgres instead of mysql"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          },
+          {
+            "type": "use",
+            "value": "postgres",
+            "instead_of": "mysql",
+            "span": [
+              18,
+              23
+            ],
+            "via": [
+              {
+                "phrase": "my db",
+                "means": "use postgres instead of mysql",
+                "span": [
+                  18,
+                  23
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "an empty phrasebook changes nothing",
+      "input": "clone reddit.com",
+      "phrasebook": {},
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              0,
+              16
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "phrases must be plain words",
+      "input": "call it Savor",
+      "phrasebook": {
+        "spin  up": "clone",
+        " spin": "clone",
+        "spin,up": "clone",
+        "spin.": "clone",
+        "\"spin\"": "clone",
+        "# spin": "clone",
+        "": "clone",
+        "spin\nup": "clone",
+        "﻿spin": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"\" must be plain words separated by single spaces.",
+            "phrase": ""
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\" spin\" must be plain words separated by single spaces.",
+            "phrase": " spin"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"\"spin\"\" must be plain words separated by single spaces.",
+            "phrase": "\"spin\""
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"# spin\" must be plain words separated by single spaces.",
+            "phrase": "# spin"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"spin\nup\" must be plain words separated by single spaces.",
+            "phrase": "spin\nup"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"spin  up\" must be plain words separated by single spaces.",
+            "phrase": "spin  up"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"spin,up\" must be plain words separated by single spaces.",
+            "phrase": "spin,up"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"spin.\" must be plain words separated by single spaces.",
+            "phrase": "spin."
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"﻿spin\" must be plain words separated by single spaces.",
+            "phrase": "﻿spin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "phrases have at most 16 words",
+      "input": "a b c d e f g h i j k l m n o p q x",
+      "phrasebook": {
+        "a b c d e f g h i j k l m n o p": "clone",
+        "a b c d e f g h i j k l m n o p q": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "clone",
+            "ref": "q x",
+            "span": [
+              0,
+              35
+            ],
+            "via": [
+              {
+                "phrase": "a b c d e f g h i j k l m n o p",
+                "means": "clone",
+                "span": [
+                  0,
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"a b c d e f g h i j k l m n o p q\" must be at most 16 words.",
+            "phrase": "a b c d e f g h i j k l m n o p q"
+          }
+        ]
+      }
+    },
+    {
+      "name": "phrases must be lower case",
+      "input": "call it Savor",
+      "phrasebook": {
+        "Spin Up": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"Spin Up\" must be written in lower case.",
+            "phrase": "Spin Up"
+          }
+        ]
+      }
+    },
+    {
+      "name": "phrases cannot use reserved words",
+      "input": "call it Savor",
+      "phrasebook": {
+        "go and": "clone",
+        "but": "clone",
+        "then spin": "clone",
+        "do it instead": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"but\" contains the reserved word \"but\".",
+            "phrase": "but"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"do it instead\" contains the reserved word \"instead\".",
+            "phrase": "do it instead"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"go and\" contains the reserved word \"and\".",
+            "phrase": "go and"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"then spin\" contains the reserved word \"then\".",
+            "phrase": "then spin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "phrases cannot contain a keyword",
+      "input": "call it Savor",
+      "phrasebook": {
+        "with": "clone",
+        "go with": "use",
+        "for only": "only",
+        "make it pop": "make it",
+        "kick off with": "clone",
+        "please clone": "clone",
+        "call it": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"call it\" contains the keyword \"call it\".",
+            "phrase": "call it"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"for only\" contains the keyword \"only\".",
+            "phrase": "for only"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"go with\" contains the keyword \"with\".",
+            "phrase": "go with"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"kick off with\" contains the keyword \"with\".",
+            "phrase": "kick off with"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"make it pop\" contains the keyword \"make it\".",
+            "phrase": "make it pop"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"please clone\" contains the keyword \"clone\".",
+            "phrase": "please clone"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"with\" contains the keyword \"with\".",
+            "phrase": "with"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meanings must be a keyword or whole clauses",
+      "input": "call it Savor",
+      "phrasebook": {
+        "a": "",
+        "b": "reddit.com",
+        "c": "call it",
+        "d": "ingest notes.md",
+        "e": "clone \"x",
+        "f": "call  it",
+        "g": "with laravel, ingest notes.md"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"a\" must mean a keyword or whole clauses, not \"\".",
+            "phrase": "a"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"b\" must mean a keyword or whole clauses, not \"reddit.com\".",
+            "phrase": "b"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"d\" must mean a keyword or whole clauses, not \"ingest notes.md\".",
+            "phrase": "d"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"e\" must mean a keyword or whole clauses, not \"clone \"x\".",
+            "phrase": "e"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"f\" must mean a keyword or whole clauses, not \"call  it\".",
+            "phrase": "f"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"g\" must mean a keyword or whole clauses, not \"with laravel, ingest notes.md\".",
+            "phrase": "g"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a bad entry is skipped, the rest still work",
+      "input": "go with x, spin up reddit.com",
+      "phrasebook": {
+        "go with": "use",
+        "spin up": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "text",
+            "text": "go with x",
+            "span": [
+              0,
+              9
+            ]
+          },
+          {
+            "type": "clone",
+            "ref": "reddit.com",
+            "span": [
+              11,
+              29
+            ],
+            "via": [
+              {
+                "phrase": "spin up",
+                "means": "clone",
+                "span": [
+                  11,
+                  18
+                ]
+              }
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"go with\" contains the keyword \"with\".",
+            "phrase": "go with"
+          }
+        ]
+      }
+    },
+    {
+      "name": "problems are sorted by code point",
+      "input": "call it Savor",
+      "phrasebook": {
+        "9": "nope",
+        "10": "nope",
+        "z": "nope",
+        "Ж": "nope",
+        "ж": "nope",
+        "ｚ": "nope",
+        "🌧": "nope"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "name",
+            "name": "Savor",
+            "span": [
+              0,
+              13
+            ]
+          }
+        ],
+        "errors": [],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"10\" must mean a keyword or whole clauses, not \"nope\".",
+            "phrase": "10"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"9\" must mean a keyword or whole clauses, not \"nope\".",
+            "phrase": "9"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"z\" must mean a keyword or whole clauses, not \"nope\".",
+            "phrase": "z"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"Ж\" must mean a keyword or whole clauses, not \"nope\".",
+            "phrase": "Ж"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"ж\" must mean a keyword or whole clauses, not \"nope\".",
+            "phrase": "ж"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"ｚ\" must mean a keyword or whole clauses, not \"nope\".",
+            "phrase": "ｚ"
+          },
+          {
+            "code": "invalid_phrase",
+            "message": "\"🌧\" must mean a keyword or whole clauses, not \"nope\".",
+            "phrase": "🌧"
+          }
+        ]
+      }
+    },
+    {
+      "name": "problems do not count as request errors",
+      "input": "",
+      "phrasebook": {
+        "Ab": "clone"
+      },
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [],
+        "errors": [
+          {
+            "code": "empty_request",
+            "message": "The request is empty.",
+            "span": [
+              0,
+              0
+            ]
+          }
+        ],
+        "phrasebook_problems": [
+          {
+            "code": "invalid_phrase",
+            "message": "\"Ab\" must be written in lower case.",
+            "phrase": "Ab"
+          }
+        ]
+      }
+    }
+  ]
+}

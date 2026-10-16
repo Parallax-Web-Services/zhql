@@ -1,7 +1,7 @@
 // ЖQL (zhql) reference parser for JavaScript. The behaviour is defined by
 // ../../SPEC.md and checked against ../../conformance; keep the two in step.
 
-export const VERSION = '0.2'
+export const VERSION = '0.3'
 
 const WHITESPACE = new Set([0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x20, 0x85, 0xa0, 0x1680, 0x2028, 0x2029, 0x202f, 0x205f, 0x3000])
 for (let c = 0x2000; c <= 0x200a; c++) WHITESPACE.add(c)
@@ -15,7 +15,7 @@ const BOM = '\ufeff'
 const MARKS = new Set(['comma', 'semicolon', 'newline', 'stop'])
 
 // Longest phrases first, so "make it look like" wins over "make it".
-const KEYWORDS = [
+export const KEYWORDS = [
     { words: ['make', 'it', 'look', 'like'], type: 'look_like' },
     { words: ['tailor', 'it', 'to'], type: 'tailor' },
     { words: ['tailor', 'it', 'for'], type: 'tailor' },
@@ -108,10 +108,94 @@ function tokenize(cps, errors) {
     return tokens
 }
 
-export function parse(input) {
-    if (typeof input !== 'string') throw new TypeError('zhql: the request must be a string')
-    if (!wellFormed(input)) {
-        return { zhql: VERSION, clauses: [], errors: [error('invalid_encoding', 0, 0)] }
+// Phrasebooks. A phrase may not contain these words or any keyword, so it can
+// never take over or swallow a built-in.
+const RESERVED_WORDS = new Set([...CONNECTOR_WORDS, 'instead'])
+const MAX_PHRASE_WORDS = 16
+const KEYWORD_BY_PHRASE = new Map(KEYWORDS.map((kw) => [kw.words.join(' '), kw]))
+
+const comparePoints = (a, b) => {
+    const x = Array.from(a, (c) => c.codePointAt(0))
+    const y = Array.from(b, (c) => c.codePointAt(0))
+    for (let i = 0; i < Math.min(x.length, y.length); i++) if (x[i] !== y[i]) return x[i] - y[i]
+    return x.length - y.length
+}
+
+const problem = (phrase, message) => ({ code: 'invalid_phrase', message: `"${phrase}" ${message}`, phrase })
+
+// Checks one entry. Returns { entry } or { problem }. Depends on nothing but the entry.
+function readEntry(phrase, means) {
+    const tokens = tokenize(Array.from(phrase), [])
+    const words = tokens.map((t) => t.value)
+    if (!tokens.length || tokens.some((t) => t.kind !== 'word') || words.join(' ') !== phrase) {
+        return { problem: problem(phrase, 'must be plain words separated by single spaces.') }
+    }
+    if (words.length > MAX_PHRASE_WORDS) return { problem: problem(phrase, `must be at most ${MAX_PHRASE_WORDS} words.`) }
+    if (/[A-Z]/.test(phrase)) return { problem: problem(phrase, 'must be written in lower case.') }
+    const reserved = words.find((w) => RESERVED_WORDS.has(w))
+    if (reserved) return { problem: problem(phrase, `contains the reserved word "${reserved}".`) }
+    for (let i = 0; i < words.length; i++) {
+        const kw = KEYWORDS.find((k) => k.words.every((w, o) => words[i + o] === w))
+        if (kw) return { problem: problem(phrase, `contains the keyword "${kw.words.join(' ')}".`) }
+    }
+
+    const target = KEYWORD_BY_PHRASE.get(asciiLower(means))
+    if (target) return { entry: { phrase, means, words, alias: target } }
+
+    const plain = parse(means)
+    const usable = plain.clauses.length && !plain.errors.length && plain.clauses.every((c) => c.type !== 'text' && c.type !== 'ingest')
+    if (!usable) return { problem: problem(phrase, `must mean a keyword or whole clauses, not "${means}".`) }
+    const clauses = plain.clauses.map(({ span, ...fields }) => fields)
+    return { entry: { phrase, means, words, clauses, listType: clauses.length === 1 ? clauses[0].type : null } }
+}
+
+// Phrases are kept in a tree of words, so finding the longest phrase at a token
+// costs no more than the words it walks.
+const newNode = () => ({ next: new Map(), entry: null })
+
+function readPhrasebook(book) {
+    const root = newNode()
+    const problems = []
+    if (book === undefined || book === null) return { root, problems }
+    const proto = typeof book === 'object' ? Object.getPrototypeOf(book) : undefined
+    if (proto !== Object.prototype && proto !== null) throw new TypeError('zhql: a phrasebook must be an object of phrases and meanings')
+    const phrases = Object.keys(book)
+    for (const phrase of phrases) {
+        if (typeof book[phrase] !== 'string') throw new TypeError('zhql: every meaning in a phrasebook must be a string')
+        if (!wellFormed(phrase) || !wellFormed(book[phrase])) throw new TypeError('zhql: a phrasebook must be valid Unicode text')
+    }
+    for (const phrase of phrases.sort(comparePoints)) {
+        const { entry, problem: bad } = readEntry(phrase, book[phrase])
+        if (bad) { problems.push(bad); continue }
+        let node = root
+        for (const word of entry.words) {
+            if (!node.next.has(word)) node.next.set(word, newNode())
+            node = node.next.get(word)
+        }
+        node.entry = entry // two valid phrases never have the same words
+    }
+    return { root, problems }
+}
+
+const UTF8 = typeof TextDecoder === 'function' ? new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }) : null
+
+// The request is a string, or UTF-8 bytes (a Uint8Array or Buffer).
+export function parse(request, phrasebook) {
+    if (typeof request !== 'string' && !(request instanceof Uint8Array)) {
+        throw new TypeError('zhql: the request must be a string or UTF-8 bytes')
+    }
+    const book = readPhrasebook(phrasebook)
+    const finish = (result) => (book.problems.length ? { ...result, phrasebook_problems: book.problems } : result)
+    let input = request
+    if (request instanceof Uint8Array) {
+        try {
+            input = UTF8.decode(request)
+        } catch {
+            input = null
+        }
+    }
+    if (input === null || !wellFormed(input)) {
+        return finish({ zhql: VERSION, clauses: [], errors: [error('invalid_encoding', 0, 0)] })
     }
 
     const cps = Array.from(input)
@@ -124,17 +208,54 @@ export function parse(input) {
     const isConnector = (k) => k < n && (MARKS.has(tokens[k].kind)
         || (tokens[k].kind === 'word' && CONNECTOR_WORDS.has(asciiLower(tokens[k].value))))
     const keywordAt = (k) => KEYWORDS.find((kw) => kw.words.every((word, offset) => isWord(k + offset, word)))
+    const wordAt = (k) => (k < n && tokens[k].kind === 'word' ? asciiLower(tokens[k].value) : null)
+    // The longest phrase whose words start at token k.
+    function longestPhrase(k) {
+        let node = book.root
+        let found = null
+        for (let i = k; wordAt(i) !== null && node.next.has(wordAt(i)); i++) {
+            node = node.next.get(wordAt(i))
+            if (node.entry) found = node.entry
+        }
+        return found
+    }
+    const match = (entry, k) => ({ phrase: entry.phrase, means: entry.means, span: [tokens[k].start, tokens[k + entry.words.length - 1].end] })
 
-    // A clause ends at a run of connectors followed by a keyword or by the end of
-    // the request. A clone reference also ends at an unquoted "with".
+    // What starts a clause at token k: a keyword, else the longest phrase, else nothing.
+    function startAt(k) {
+        const kw = keywordAt(k)
+        if (kw) return { kw, length: kw.words.length }
+        const entry = longestPhrase(k)
+        if (!entry) return null
+        return entry.alias ? { kw: entry.alias, length: entry.words.length, entry } : { shorthand: entry, length: entry.words.length }
+    }
+
+    // A one-clause shorthand of the list's own type, standing exactly for tokens a..b-1.
+    function listShorthand(a, b, type) {
+        let node = book.root
+        for (let i = a; i < b; i++) {
+            node = wordAt(i) === null ? undefined : node.next.get(wordAt(i))
+            if (!node) return null
+        }
+        return node.entry && node.entry.listType === type ? node.entry : null
+    }
+
+    // A clause ends at a run of connectors followed by a keyword, a phrase, or the
+    // end of the request. A clone reference also ends at "with" or an alias of it.
+    // Inside a with/only list, a one-clause shorthand of the same type joins the list.
     function boundary(from, type) {
         let j = from
         while (j < n) {
-            if (type === 'clone' && isWord(j, 'with')) return j
+            if (type === 'clone') {
+                const start = startAt(j)
+                if (start && start.kw && start.kw.type === 'with') return j
+            }
             if (isConnector(j)) {
                 let k = j
                 while (k < n && isConnector(k)) k++
-                if (k === n || keywordAt(k)) return j
+                if (k === n) return j
+                const start = startAt(k)
+                if (start && !(start.shorthand && start.shorthand.listType === type && (type === 'with' || type === 'only'))) return j
                 j = k
                 continue
             }
@@ -146,8 +267,10 @@ export function parse(input) {
     // A value is its tokens' source text, with every gap between them (whitespace,
     // line breaks, comments) written as one space. A lone quoted token is unquoted.
     function scalar(a, b) {
-        const parts = tokens.slice(a, b).filter((t) => t.kind !== 'newline')
-        while (parts.length && MARKS.has(parts[0].kind)) parts.shift()
+        const all = tokens.slice(a, b).filter((t) => t.kind !== 'newline')
+        let first = 0
+        while (first < all.length && MARKS.has(all[first].kind)) first++
+        const parts = all.slice(first)
         if (parts.length === 1 && parts[0].kind === 'quoted') return parts[0].value
         let out = ''
         let prevEnd = -1
@@ -159,7 +282,7 @@ export function parse(input) {
         return out
     }
 
-    function list(a, b) {
+    function list(a, b, type, via) {
         let marked = false
         for (let k = a; k < b; k++) if (MARKS.has(tokens[k].kind)) marked = true
         const items = []
@@ -167,7 +290,11 @@ export function parse(input) {
         for (let k = a; k <= b; k++) {
             if (k < b && !isConnector(k)) continue
             if (k > groupStart) {
-                if (marked) items.push(scalar(groupStart, k))
+                const shorthand = listShorthand(groupStart, k, type)
+                if (shorthand) {
+                    for (const item of shorthand.clauses[0].items) items.push(item)
+                    via.push(match(shorthand, groupStart))
+                } else if (marked) items.push(scalar(groupStart, k))
                 else for (let t = groupStart; t < k; t++) items.push(tokens[t].value)
             }
             groupStart = k + 1
@@ -175,13 +302,15 @@ export function parse(input) {
         return items.filter((item) => item !== '')
     }
 
+    const withVia = (object, via) => (via.length ? { ...object, via } : object)
+
     let pos = 0
     while (pos < n) {
         while (pos < n && isConnector(pos)) pos++
         if (pos >= n) break
 
-        const kw = keywordAt(pos)
-        if (!kw) {
+        const start = startAt(pos)
+        if (!start) {
             const end = boundary(pos, 'text')
             const text = scalar(pos, end)
             if (text !== '') clauses.push({ type: 'text', text, span: [tokens[pos].start, tokens[end - 1].end] })
@@ -189,10 +318,22 @@ export function parse(input) {
             continue
         }
 
-        const phrase = kw.words.join(' ')
-        const kwEnd = tokens[pos + kw.words.length - 1].end
-        const valueStart = pos + kw.words.length
-        const missing = () => errors.push(error('missing_value', tokens[pos].start, kwEnd, phrase))
+        if (start.shorthand) {
+            const m = match(start.shorthand, pos)
+            for (const fields of start.shorthand.clauses) {
+                const copy = fields.items ? { ...fields, items: [...fields.items] } : { ...fields }
+                clauses.push({ ...copy, span: [...m.span], via: [{ ...m, span: [...m.span] }] })
+            }
+            pos += start.length
+            continue
+        }
+
+        const { kw, length } = start
+        const phrase = start.entry ? start.entry.phrase : kw.words.join(' ')
+        const via = start.entry ? [match(start.entry, pos)] : []
+        const kwEnd = tokens[pos + length - 1].end
+        const valueStart = pos + length
+        const missing = () => errors.push(withVia(error('missing_value', tokens[pos].start, kwEnd, phrase), via))
 
         if (kw.type === 'ingest') {
             const token = tokens[valueStart]
@@ -200,7 +341,7 @@ export function parse(input) {
                 missing()
                 pos = valueStart
             } else {
-                clauses.push({ type: 'ingest', path: token.value, span: [tokens[pos].start, token.end] })
+                clauses.push(withVia({ type: 'ingest', path: token.value, span: [tokens[pos].start, token.end] }, via))
                 pos = valueStart + 1
             }
             continue
@@ -210,20 +351,23 @@ export function parse(input) {
         const span = [tokens[pos].start, end > valueStart ? tokens[end - 1].end : kwEnd]
 
         if (kw.type === 'with' || kw.type === 'only') {
-            const items = list(valueStart, end)
-            if (items.length) clauses.push({ type: kw.type, items, span })
+            const items = list(valueStart, end, kw.type, via)
+            if (items.length) clauses.push(withVia({ type: kw.type, items, span }, via))
             else missing()
         } else if (kw.type === 'use') {
             let split = -1
             for (let k = valueStart; k + 1 < end; k++) if (isWord(k, 'instead') && isWord(k + 1, 'of')) { split = k; break }
-            const value = scalar(valueStart, split === -1 ? end : split)
+            // Connectors just before "instead of" belong to neither part.
+            let valueEnd = split === -1 ? end : split
+            while (valueEnd > valueStart && isConnector(valueEnd - 1)) valueEnd--
+            const value = scalar(valueStart, valueEnd)
             const insteadOf = split === -1 ? null : scalar(split + 2, end)
             if (value === '') missing()
-            if (insteadOf === '') errors.push(error('missing_value', tokens[split].start, tokens[split + 1].end, 'instead of'))
-            if (value !== '' && insteadOf !== '') clauses.push({ type: 'use', value, instead_of: insteadOf, span })
+            if (insteadOf === '') errors.push(withVia(error('missing_value', tokens[split].start, tokens[split + 1].end, 'instead of'), via))
+            if (value !== '' && insteadOf !== '') clauses.push(withVia({ type: 'use', value, instead_of: insteadOf, span }, via))
         } else {
             const value = scalar(valueStart, end)
-            if (value !== '') clauses.push({ type: kw.type, [SCALAR_FIELD[kw.type]]: value, span })
+            if (value !== '') clauses.push(withVia({ type: kw.type, [SCALAR_FIELD[kw.type]]: value, span }, via))
             else missing()
         }
         pos = end
@@ -232,5 +376,5 @@ export function parse(input) {
     if (!clauses.length && !errors.length) errors.push(error('empty_request', 0, cps.length))
     errors.sort((x, y) => x.span[0] - y.span[0] || x.span[1] - y.span[1] || (x.code < y.code ? -1 : x.code > y.code ? 1 : 0))
 
-    return { zhql: VERSION, clauses, errors }
+    return finish({ zhql: VERSION, clauses, errors })
 }

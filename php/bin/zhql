@@ -9,7 +9,9 @@ declare(strict_types=1);
 //   zhql savor.zhql                          parse a query file
 //   echo "call it Savor" | zhql              parse standard input
 //
-// --pretty indents the output. Exits 1 when the result has errors.
+// --pretty indents the output. --phrasebook FILE reads a JSON object of phrases
+// and their meanings. Exits 1 when the request has errors, 2 when the phrasebook
+// file is unusable.
 
 foreach ([__DIR__.'/../../vendor/autoload.php', __DIR__.'/../../../../autoload.php'] as $autoload) {
     if (is_file($autoload)) {
@@ -21,19 +23,65 @@ if (! class_exists(Zhql\Parser::class)) {
     require __DIR__.'/../src/Parser.php';
 }
 
-$args = array_slice($argv, 1);
-$pretty = in_array('--pretty', $args, true);
-$args = array_values(array_filter($args, static fn (string $arg): bool => $arg !== '--pretty'));
+$pretty = false;
+$phrasebookFile = null;
+$args = [];
+for ($i = 1; $i < count($argv); $i++) {
+    if ($argv[$i] === '--pretty') {
+        $pretty = true;
+    } elseif ($argv[$i] === '--phrasebook') {
+        if ($i + 1 === count($argv)) {
+            fwrite(STDERR, "zhql: --phrasebook needs a file.\n");
+            exit(2);
+        }
+        $phrasebookFile = $argv[++$i];
+    } else {
+        $args[] = $argv[$i];
+    }
+}
+
+$phrasebook = null;
+if ($phrasebookFile !== null) {
+    $unusable = static function () use ($phrasebookFile): never {
+        fwrite(STDERR, 'zhql: '.$phrasebookFile." is not a phrasebook (a JSON object of phrases and meanings).\n");
+        exit(2);
+    };
+    $text = is_file($phrasebookFile) ? @file_get_contents($phrasebookFile) : false;
+    // Decoded to an array, because PHP objects can't hold every key (one that
+    // starts with NUL, for example); so check first that the JSON is an object.
+    if ($text === false || ! str_starts_with(ltrim($text, " \t\n\r"), '{')) {
+        $unusable();
+    }
+    try {
+        $phrasebook = json_decode($text, true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException) {
+        $unusable();
+    }
+    foreach ($phrasebook as $means) {
+        if (! is_string($means)) {
+            $unusable();
+        }
+    }
+}
+
+$readOrExit = static function (string|false $content, string $name): string {
+    if ($content === false) {
+        fwrite(STDERR, 'zhql: cannot read '.$name.".\n");
+        exit(2);
+    }
+
+    return $content;
+};
 
 if (count($args) === 1 && str_ends_with($args[0], '.zhql') && is_file($args[0])) {
-    $request = file_get_contents($args[0]);
+    $request = $readOrExit(@file_get_contents($args[0]), $args[0]);
 } elseif ($args === [] || $args === ['-']) {
-    $request = stream_get_contents(STDIN);
+    $request = $readOrExit(@stream_get_contents(STDIN), 'standard input');
 } else {
     $request = implode(' ', $args);
 }
 
-$result = Zhql\Parser::parse($request);
+$result = Zhql\Parser::parse($request, $phrasebook);
 
 $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS | JSON_THROW_ON_ERROR;
 echo json_encode($result, $pretty ? $flags | JSON_PRETTY_PRINT : $flags), "\n";

@@ -5,7 +5,7 @@
       "name": "space-separated items",
       "input": "but only posts comments voting",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "only",
@@ -27,7 +27,7 @@
       "name": "and separates items",
       "input": "with laravel and relay and postgres",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "with",
@@ -49,7 +49,7 @@
       "name": "commas allow multi-word items",
       "input": "but only posts, direct messages, communities",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "only",
@@ -71,7 +71,7 @@
       "name": "oxford comma",
       "input": "only posts, comments, and voting",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "only",
@@ -93,7 +93,7 @@
       "name": "quoted multi-word item without commas",
       "input": "only posts \"direct messages\" voting",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "only",
@@ -115,7 +115,7 @@
       "name": "semicolons separate items",
       "input": "with laravel; relay",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "with",
@@ -136,7 +136,7 @@
       "name": "every connector separates items",
       "input": "with laravel then relay but postgres",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "with",
@@ -158,7 +158,7 @@
       "name": "line breaks separate items",
       "input": "only\nposts\ndirect messages\nvoting",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "only",
@@ -180,7 +180,7 @@
       "name": "list ends at a keyword",
       "input": "with laravel and relay, call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "with",
@@ -209,7 +209,7 @@
       "name": "with list from a clone",
       "input": "clone reddit.com with laravel, relay and postgres",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",

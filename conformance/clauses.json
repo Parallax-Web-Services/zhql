@@ -5,7 +5,7 @@
       "name": "clone alone",
       "input": "clone reddit.com",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -23,7 +23,7 @@
       "name": "clone with a multi-word reference",
       "input": "clone the reddit front page",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -41,7 +41,7 @@
       "name": "with after a connector",
       "input": "call it Savor, with laravel",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -69,7 +69,7 @@
       "name": "use without instead of",
       "input": "use postgres",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "use",
@@ -88,7 +88,7 @@
       "name": "use with instead of",
       "input": "use postgres instead of mysql",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "use",
@@ -104,10 +104,86 @@
       }
     },
     {
+      "name": "connectors before instead of are dropped",
+      "input": "use postgres, instead of mysql",
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "use",
+            "value": "postgres",
+            "instead_of": "mysql",
+            "span": [
+              0,
+              30
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "instead of ignores ASCII case",
+      "input": "use postgres INSTEAD OF mysql",
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "use",
+            "value": "postgres",
+            "instead_of": "mysql",
+            "span": [
+              0,
+              29
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "instead and of on different lines are not instead of",
+      "input": "use postgres instead\nof mysql",
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "use",
+            "value": "postgres instead of mysql",
+            "instead_of": null,
+            "span": [
+              0,
+              29
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "quoted instead of is text",
+      "input": "use postgres \"instead of\" mysql",
+      "expect": {
+        "zhql": "0.3",
+        "clauses": [
+          {
+            "type": "use",
+            "value": "postgres \"instead of\" mysql",
+            "instead_of": null,
+            "span": [
+              0,
+              31
+            ]
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
       "name": "make it",
       "input": "make it private for our company",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "make",
@@ -125,7 +201,7 @@
       "name": "make it look like wins over make it",
       "input": "make it look like linear",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "look_like",
@@ -143,7 +219,7 @@
       "name": "call it",
       "input": "call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -161,7 +237,7 @@
       "name": "name it",
       "input": "name it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -179,7 +255,7 @@
       "name": "tailor it to",
       "input": "tailor it to chefs",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "tailor",
@@ -197,7 +273,7 @@
       "name": "tailor it for",
       "input": "tailor it for home cooks",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "tailor",
@@ -215,7 +291,7 @@
       "name": "ingest a word",
       "input": "ingest notes.md",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "ingest",
@@ -233,7 +309,7 @@
       "name": "ingest a quoted path",
       "input": "ingest \"./my notes/brief.md\"",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "ingest",
@@ -251,7 +327,7 @@
       "name": "ingest then a clause without a connector",
       "input": "ingest notes.md call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "ingest",
@@ -277,7 +353,7 @@
       "name": "free text only",
       "input": "build a recipe app",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "text",
@@ -295,7 +371,7 @@
       "name": "free text then a clause",
       "input": "build a recipe app, call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "text",
@@ -321,7 +397,7 @@
       "name": "then as a connector",
       "input": "clone reddit.com then call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -347,7 +423,7 @@
       "name": "semicolon as a connector",
       "input": "clone reddit.com; call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -373,7 +449,7 @@
       "name": "connector runs",
       "input": "clone reddit.com, and then call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -399,7 +475,7 @@
       "name": "keywords are case-insensitive",
       "input": "CLONE Reddit.com And Call It Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -425,7 +501,7 @@
       "name": "a clause needs a connector",
       "input": "call it Savor tailor it to chefs",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -443,7 +519,7 @@
       "name": "with needs a connector after other clauses",
       "input": "make it private with single sign-on",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "make",
@@ -461,7 +537,7 @@
       "name": "with ends a clone reference without a connector",
       "input": "clone \"reddit.com\" with laravel",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -489,7 +565,7 @@
       "name": "connectors that do not start a clause stay in the value",
       "input": "make it fast and friendly, but never noisy",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "make",
@@ -507,7 +583,7 @@
       "name": "and inside free text",
       "input": "build salt and pepper shakers",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "text",
@@ -525,7 +601,7 @@
       "name": "repeated clause types are kept in order",
       "input": "make it private and make it fast",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "make",
@@ -551,7 +627,7 @@
       "name": "trailing connector is dropped",
       "input": "call it Savor and",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -569,7 +645,7 @@
       "name": "trailing sentence punctuation is dropped",
       "input": "tailor it to chefs.",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "tailor",
@@ -587,7 +663,7 @@
       "name": "trailing punctuation on its own is dropped",
       "input": "tailor it to chefs !",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "tailor",
@@ -605,7 +681,7 @@
       "name": "inner punctuation is kept",
       "input": "clone news.ycombinator.com",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -623,7 +699,7 @@
       "name": "multiple spaces collapse",
       "input": "tailor it to   home \t cooks",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "tailor",
@@ -641,7 +717,7 @@
       "name": "multi-line request",
       "input": "clone reddit.com\ncall it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -667,7 +743,7 @@
       "name": "CRLF line breaks",
       "input": "clone reddit.com\r\nwith laravel\r\ncall it Savor\r\n",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -703,7 +779,7 @@
       "name": "a line break inside a value that does not start a clause",
       "input": "make it fast\nand friendly",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "make",
@@ -721,7 +797,7 @@
       "name": "sentences",
       "input": "Clone reddit.com. Call it Savor! Tailor it to chefs?",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -755,7 +831,7 @@
       "name": "sentence punctuation inside a value is kept",
       "input": "make it look like Acme Inc. dashboards",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "look_like",
@@ -773,7 +849,7 @@
       "name": "sentence punctuation before a connector",
       "input": "call it Savor., and tailor it to chefs",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",

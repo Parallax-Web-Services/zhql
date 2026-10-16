@@ -5,7 +5,7 @@
       "name": "infer",
       "input": "infer the data model from ./menu.csv",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "infer",
@@ -23,7 +23,7 @@
       "name": "generate",
       "input": "generate seed data",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "generate",
@@ -41,7 +41,7 @@
       "name": "invent",
       "input": "invent a name",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "invent",
@@ -59,7 +59,7 @@
       "name": "verbs after a clone",
       "input": "clone reddit.com, invent a name and generate seed data",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -93,7 +93,7 @@
       "name": "a chain of verbs",
       "input": "infer the schema, generate the migrations, then invent a logo",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "infer",
@@ -127,7 +127,7 @@
       "name": "verbs are case-insensitive",
       "input": "Clone reddit.com. Invent a name! GENERATE seed data.",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -161,7 +161,7 @@
       "name": "verbs one per line",
       "input": "clone reddit.com\ninfer the schema from notes.md\ngenerate tests\n",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -195,7 +195,7 @@
       "name": "a verb without a connector stays in the value",
       "input": "build an app that can generate invoices",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "text",
@@ -213,7 +213,7 @@
       "name": "a connector before a verb starts a clause",
       "input": "build an app and generate invoices",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "text",
@@ -239,7 +239,7 @@
       "name": "a verb inside make it",
       "input": "make it easy to invent recipes",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "make",
@@ -257,7 +257,7 @@
       "name": "a verb ends a list",
       "input": "but only posts, comments and generate tags",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "only",
@@ -286,7 +286,7 @@
       "name": "a verb ends a clone reference only after a connector",
       "input": "clone reddit.com invent a name",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -304,7 +304,7 @@
       "name": "a quoted verb is text",
       "input": "call it Savor and \"generate\" more",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -322,7 +322,7 @@
       "name": "other forms of the word are text",
       "input": "and generated reports",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "text",
@@ -340,7 +340,7 @@
       "name": "invent needs a value",
       "input": "invent",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [],
         "errors": [
           {
@@ -358,7 +358,7 @@
       "name": "generate needs a value",
       "input": "clone reddit.com and generate",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -385,7 +385,7 @@
       "name": "infer needs a value",
       "input": "infer, call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",

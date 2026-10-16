@@ -2,3 +2,7 @@
 /composer.lock
 node_modules/
 /zhql
+__pycache__/
+/python/build/
+/python/dist/
+*.egg-info/

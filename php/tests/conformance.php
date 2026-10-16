@@ -15,7 +15,7 @@ $failed = 0;
 foreach (glob(__DIR__.'/../../conformance/*.json') as $file) {
     $suite = json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
     foreach ($suite['cases'] as $case) {
-        $actual = Parser::parse($case['input']);
+        $actual = Parser::parse($case['input'], $case['phrasebook'] ?? null);
         if ($actual === $case['expect']) {
             $passed++;
 
@@ -31,14 +31,32 @@ foreach (glob(__DIR__.'/../../conformance/*.json') as $file) {
     }
 }
 
-// Not expressible in JSON fixtures: bytes that are not UTF-8.
+// Not expressible in JSON fixtures: bytes that are not UTF-8, and phrasebooks
+// that are not phrasebooks.
+$check = static function (string $name, bool $ok) use (&$passed, &$failed): void {
+    $ok ? $passed++ : $failed++;
+    if (! $ok) {
+        fwrite(STDERR, "FAIL {$name}\n");
+    }
+};
+$throws = static function (callable $parse): bool {
+    try {
+        $parse();
+    } catch (InvalidArgumentException) {
+        return true;
+    }
+
+    return false;
+};
+
 $invalid = Parser::parse("call it \xC3\x28");
-if ($invalid['clauses'] === [] && array_column($invalid['errors'], 'code') === ['invalid_encoding']) {
-    $passed++;
-} else {
-    $failed++;
-    fwrite(STDERR, "FAIL invalid UTF-8 is reported as invalid_encoding\n");
-}
+$check('invalid UTF-8 is reported as invalid_encoding', $invalid['clauses'] === [] && array_column($invalid['errors'], 'code') === ['invalid_encoding']);
+$invalid = Parser::parse("call it \xC3\x28", ['Ab' => 'clone']);
+$check('phrasebook problems are kept with invalid_encoding', array_column($invalid['phrasebook_problems'] ?? [], 'phrase') === ['Ab']);
+$check('a meaning that is not a string is rejected', $throws(static fn () => Parser::parse('x', ['spin up' => 1])));
+$check('a phrase that is not UTF-8 is rejected', $throws(static fn () => Parser::parse('x', ["sp\xC3\x28" => 'clone'])));
+$check('a meaning that is not UTF-8 is rejected', $throws(static fn () => Parser::parse('x', ['spin' => "cl\xC3\x28"])));
+$check('an object phrasebook works', Parser::parse('spin up x', (object) ['spin up' => 'clone'])['clauses'][0]['type'] === 'clone');
 
 printf("%d passed, %d failed\n", $passed, $failed);
 exit($failed === 0 ? 0 : 1);

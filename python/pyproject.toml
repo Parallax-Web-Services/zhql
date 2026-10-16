@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zhql"
+version = "0.3.0"
+description = "Parser for ЖQL (zhql), the Zero-Hassle Query Language"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+keywords = ["zhql", "slipstream", "zefram", "parser"]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/Parallax-Web-Services/zhql"
+
+[project.scripts]
+zhql = "zhql.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

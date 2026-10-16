@@ -5,7 +5,7 @@
       "name": "one clause per line",
       "input": "clone reddit.com\nwith laravel and relay\ncall it Savor\ntailor it to chefs\n",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -50,7 +50,7 @@
       "name": "comment lines are skipped",
       "input": "# Savor: Reddit for chefs\nclone reddit.com\n  # the stack\nwith laravel\n",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -78,7 +78,7 @@
       "name": "a comment inside a value becomes a space",
       "input": "make it fast\n# and also\nand friendly",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "make",
@@ -96,7 +96,7 @@
       "name": "a hash that is not followed by a space is text",
       "input": "#1 recipe app, call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "text",
@@ -122,7 +122,7 @@
       "name": "a hash on its own line is a comment",
       "input": "#\ncall it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -140,7 +140,7 @@
       "name": "a hash later in a line is text",
       "input": "tailor it to C# developers",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "tailor",
@@ -158,7 +158,7 @@
       "name": "byte order mark is ignored",
       "input": "﻿call it Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",
@@ -176,7 +176,7 @@
       "name": "comments only",
       "input": "# nothing yet\n# still nothing\n",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [],
         "errors": [
           {
@@ -194,7 +194,7 @@
       "name": "blank lines",
       "input": "\n\nclone reddit.com\n\n\ncall it Savor\n\n",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "clone",
@@ -220,7 +220,7 @@
       "name": "a value can start after punctuation",
       "input": "call it, Savor",
       "expect": {
-        "zhql": "0.2",
+        "zhql": "0.3",
         "clauses": [
           {
             "type": "name",

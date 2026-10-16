@@ -33,9 +33,29 @@ func (r Result) object() object {
 	}
 	errors := make([]any, len(r.Errors))
 	for i, e := range r.Errors {
-		errors[i] = object{{"code", e.Code}, {"message", e.Message}, {"span", span(e.Span)}}
+		errors[i] = withVia(object{{"code", e.Code}, {"message", e.Message}, {"span", span(e.Span)}}, e.Via)
 	}
-	return object{{"zhql", r.Zhql}, {"clauses", clauses}, {"errors", errors}}
+	o := object{{"zhql", r.Zhql}, {"clauses", clauses}, {"errors", errors}}
+	if len(r.PhrasebookProblems) > 0 {
+		problems := make([]any, len(r.PhrasebookProblems))
+		for i, p := range r.PhrasebookProblems {
+			problems[i] = object{{"code", p.Code}, {"message", p.Message}, {"phrase", p.Phrase}}
+		}
+		o = append(o, member{"phrasebook_problems", problems})
+	}
+	return o
+}
+
+// withVia adds "via" as the last key, only when there is something to show.
+func withVia(o object, via []Match) object {
+	if len(via) == 0 {
+		return o
+	}
+	matches := make([]any, len(via))
+	for i, m := range via {
+		matches[i] = object{{"phrase", m.Phrase}, {"means", m.Means}, {"span", span(m.Span)}}
+	}
+	return append(o, member{"via", matches})
 }
 
 func (c Clause) object() object {
@@ -68,7 +88,7 @@ func (c Clause) object() object {
 	case "text":
 		o = append(o, member{"text", c.Text})
 	}
-	return append(o, member{"span", span(c.Span)})
+	return withVia(append(o, member{"span", span(c.Span)}), c.Via)
 }
 
 func span(s [2]int) []any { return []any{s[0], s[1]} }
