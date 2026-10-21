@@ -1,6 +1,8 @@
 // ЖQL (zhql) reference parser for JavaScript. The behaviour is defined by
 // ../../SPEC.md and checked against ../../conformance; keep the two in step.
 
+import { klaxonStart, parseKlaxon } from './klaxon.js'
+
 export const VERSION = '0.3'
 
 const WHITESPACE = new Set([0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x20, 0x85, 0xa0, 0x1680, 0x2028, 0x2029, 0x202f, 0x205f, 0x3000])
@@ -143,7 +145,7 @@ function readEntry(phrase, means) {
     if (target) return { entry: { phrase, means, words, alias: target } }
 
     const plain = parse(means)
-    const usable = plain.clauses.length && !plain.errors.length && plain.clauses.every((c) => c.type !== 'text' && c.type !== 'ingest')
+    const usable = !plain.dialect && plain.clauses.length && !plain.errors.length && plain.clauses.every((c) => c.type !== 'text' && c.type !== 'ingest')
     if (!usable) return { problem: problem(phrase, `must mean a keyword or whole clauses, not "${means}".`) }
     const clauses = plain.clauses.map(({ span, ...fields }) => fields)
     return { entry: { phrase, means, words, clauses, listType: clauses.length === 1 ? clauses[0].type : null } }
@@ -201,6 +203,8 @@ export function parse(request, phrasebook) {
     const cps = Array.from(input)
     const errors = []
     const tokens = tokenize(cps, errors)
+    const agentStart = klaxonStart(tokens)
+    if (agentStart !== -1) return finish(parseKlaxon(cps, tokens, errors, VERSION, agentStart))
     const clauses = []
     const n = tokens.length
 

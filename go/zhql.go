@@ -18,7 +18,7 @@ const Version = "0.3"
 
 // Clause is one part of a request. Only the fields for its Type are set.
 type Clause struct {
-	Type      string   // clone, with, use, only, look_like, make, name, tailor, ingest, infer, generate, invent or text
+	Type      string   // core clause type, or probe, fix, report_back, store_kit for Klaxon
 	Ref       string   // clone, look_like
 	Items     []string // with, only
 	Value     string   // use
@@ -29,6 +29,8 @@ type Clause struct {
 	Path      string   // ingest
 	Subject   string   // infer, generate, invent
 	Text      string   // text
+	Target    string   // probe (agent dialect)
+	CVEs      []string // probe (agent dialect)
 	Span      [2]int   // code point offsets: first token, and just past the last
 	Via       []Match  // phrasebook entries this clause came from, in request order
 }
@@ -58,6 +60,7 @@ type Problem struct {
 // Result is a parsed request.
 type Result struct {
 	Zhql               string
+	Dialect            string // agent dialect; empty for the core language
 	Clauses            []Clause
 	Errors             []Error
 	PhrasebookProblems []Problem // only from ParseWith
@@ -251,7 +254,7 @@ func readEntry(phrase, means string) (*entry, *Problem) {
 	}
 
 	plainResult := Parse(means)
-	usable := len(plainResult.Clauses) > 0 && len(plainResult.Errors) == 0
+	usable := plainResult.Dialect == "" && len(plainResult.Clauses) > 0 && len(plainResult.Errors) == 0
 	for _, c := range plainResult.Clauses {
 		usable = usable && c.Type != "text" && c.Type != "ingest"
 	}
@@ -277,7 +280,7 @@ type parser struct {
 	book   *phrasebook
 }
 
-// Parse reads one ЖQL request, such as the content of a .zhql file.
+// Parse reads one core or agent ЖQL request, such as the content of a .zhql file.
 func Parse(request string) Result {
 	result, _ := ParseWith(request, nil)
 	result.PhrasebookProblems = nil
@@ -300,7 +303,16 @@ func ParseWith(request string, book map[string]string) (Result, error) {
 	p := &parser{cps: []rune(request), book: pb}
 	p.tokenize()
 	p.n = len(p.tokens)
-	result := p.run()
+	var result Result
+	first := 0
+	for first < p.n && marks[p.tokens[first].kind] {
+		first++
+	}
+	if p.isWord(first, "klaxon") {
+		result = p.runKlaxon(first)
+	} else {
+		result = p.run()
+	}
 	result.PhrasebookProblems = pb.problems
 	return result, nil
 }

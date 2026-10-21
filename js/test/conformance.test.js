@@ -41,3 +41,34 @@ test('a phrasebook must be an object of strings in valid Unicode', () => {
     }
     assert.equal(parse('spin x', Object.assign(Object.create(null), { spin: 'clone' })).clauses[0].type, 'clone')
 })
+
+
+test('agent dialect accepts UTF-8 bytes without applying application phrasebooks', () => {
+    const input = 'klaxon probe WEB01.COOLFRAMES.COM for cve-2026-109618, fix'
+    const result = parse(input, { repair: 'make it reliable' })
+    assert.equal(result.dialect, 'klaxon')
+    assert.equal(result.clauses[0].target, 'web01.coolframes.com')
+    assert.deepStrictEqual(parse(Buffer.from(input)), parse(input))
+    assert.deepStrictEqual(parse(input.replace(', fix', ', repair'), { repair: 'make it reliable' }).clauses, [])
+})
+
+test('agent commands cannot enter the application dialect through a phrasebook', () => {
+    const result = parse('security check', { 'security check': 'klaxon probe web01.example for CVE-2026-1234' })
+    assert.equal(result.dialect, undefined)
+    assert.deepStrictEqual(result.clauses.map((clause) => clause.type), ['text'])
+    assert.deepStrictEqual(result.phrasebook_problems.map((problem) => problem.phrase), ['security check'])
+})
+
+
+test('duplicate steps fail at their keyword before parsing malformed arguments', () => {
+    for (const [request, span] of [
+        ['klaxon probe host for CVE-2026-1234, report back, report wrong', [50, 56]],
+        ['klaxon probe host for CVE-2026-1234, store as kit, store as wrong', [51, 56]],
+    ]) {
+        const result = parse(request)
+        assert.deepStrictEqual(result.clauses, [])
+        assert.deepStrictEqual(result.errors.map(({ code, span }) => ({ code, span })), [
+            { code: 'invalid_agent_request', span },
+        ])
+    }
+})

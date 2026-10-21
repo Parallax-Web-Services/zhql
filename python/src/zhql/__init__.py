@@ -172,7 +172,7 @@ def _read_entry(phrase, means):
             return {"phrase": phrase, "means": means, "words": words, "alias": keyword}, None
 
     plain = parse(means)
-    usable = plain["clauses"] and not plain["errors"] and all(c["type"] not in ("text", "ingest") for c in plain["clauses"])
+    usable = "dialect" not in plain and plain["clauses"] and not plain["errors"] and all(c["type"] not in ("text", "ingest") for c in plain["clauses"])
     if not usable:
         return bad('must mean a keyword or whole clauses, not "%s".' % means)
     clauses = [{k: v for k, v in c.items() if k != "span"} for c in plain["clauses"]]
@@ -376,6 +376,14 @@ class _Parser:
         return [item for item in items if item != ""]
 
     def run(self):
+        # Agent namespaces use the core tokenizer but their own grammar.
+        first = 0
+        while first < self.n and self.tokens[first]["kind"] in MARKS:
+            first += 1
+        if self.is_word(first, "klaxon"):
+            from .klaxon import parse_klaxon
+            return parse_klaxon(self, first)
+
         tokens = self.tokens
         clauses = []
 

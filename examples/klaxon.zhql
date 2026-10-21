@@ -1,0 +1,2 @@
+# Klaxon: probe, remediate, report, and retain the workflow as a kit.
+klaxon probe web01.coolframes.com for CVE-2026-109618 and CVE-2026-109619, fix, report back, store as kit

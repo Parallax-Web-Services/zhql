@@ -35,7 +35,11 @@ func (r Result) object() object {
 	for i, e := range r.Errors {
 		errors[i] = withVia(object{{"code", e.Code}, {"message", e.Message}, {"span", span(e.Span)}}, e.Via)
 	}
-	o := object{{"zhql", r.Zhql}, {"clauses", clauses}, {"errors", errors}}
+	o := object{{"zhql", r.Zhql}}
+	if r.Dialect != "" {
+		o = append(o, member{"dialect", r.Dialect})
+	}
+	o = append(o, member{"clauses", clauses}, member{"errors", errors})
 	if len(r.PhrasebookProblems) > 0 {
 		problems := make([]any, len(r.PhrasebookProblems))
 		for i, p := range r.PhrasebookProblems {
@@ -61,6 +65,12 @@ func withVia(o object, via []Match) object {
 func (c Clause) object() object {
 	o := object{{"type", c.Type}}
 	switch c.Type {
+	case "probe":
+		cves := make([]any, len(c.CVEs))
+		for i, cve := range c.CVEs {
+			cves[i] = cve
+		}
+		o = append(o, member{"target", c.Target}, member{"cves", cves})
 	case "clone", "look_like":
 		o = append(o, member{"ref", c.Ref})
 	case "with", "only":

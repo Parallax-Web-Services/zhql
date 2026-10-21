@@ -115,6 +115,18 @@ final class Parser
         $parser = new self(self::codePoints($request), $phrases);
         $parser->tokenize();
 
+        // An explicit agent name selects its vocabulary before the core grammar.
+        $first = 0;
+        while (isset($parser->tokens[$first]) && isset(self::MARKS[$parser->tokens[$first]['kind']])) {
+            $first++;
+        }
+        $token = $parser->tokens[$first] ?? null;
+        if ($token !== null && $token['kind'] === 'word' && strtolower($token['value']) === 'klaxon') {
+            require_once __DIR__.'/Dialects/Klaxon.php';
+
+            return $finish(Dialects\Klaxon::parse($parser->tokens, count($parser->cps), $parser->errors, $first));
+        }
+
         return $finish($parser->run());
     }
 
@@ -217,7 +229,7 @@ final class Parser
         }
 
         $plainResult = self::parse($means);
-        $usable = $plainResult['clauses'] !== [] && $plainResult['errors'] === [];
+        $usable = ! isset($plainResult['dialect']) && $plainResult['clauses'] !== [] && $plainResult['errors'] === [];
         foreach ($plainResult['clauses'] as $clause) {
             $usable = $usable && $clause['type'] !== 'text' && $clause['type'] !== 'ingest';
         }

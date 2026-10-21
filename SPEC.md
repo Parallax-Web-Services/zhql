@@ -1,7 +1,7 @@
 # ЖQL 0.3
 
 ЖQL ("Zh", typed `zhql`) is the Zero-Hassle Query Language: a one-line request
-for an application, written in plain words.
+for an application or agent, written in plain words.
 
 ```
 clone reddit.com, call it Savor, and tailor it to chefs
@@ -15,6 +15,120 @@ don't let an implementation follow only one.
 The parser is syntactic. It does not decide what `reddit.com` or `relay` means,
 whether a capability exists, or whether two clauses conflict. That is the job of
 whatever consumes the result.
+
+## Agent dialects
+
+An agent has its own grammar and clause types, isolated from the core application
+language below. After tokenization, skip leading marks. If the first remaining
+token is an unquoted `klaxon` word (ASCII case-insensitive), select the Klaxon
+dialect. A BOM and leading comment lines work normally. Leading connector words
+such as `and` do not select an agent. Quoted agent names and other prefixes
+continue through the core parser.
+
+An agent result has keys in this order: `zhql`, `dialect`, `clauses`, `errors`,
+then `phrasebook_problems` when present. `zhql` remains `"0.3"`, the shared
+lexical/output contract; `dialect` is `"klaxon"`. Core results omit `dialect`.
+Invalid encoding is reported before dialect selection with the existing core
+`invalid_encoding` result. Tokenization errors in an agent request produce the
+dialect result with no clauses and only those lexical errors.
+
+Agent grammar lives in its own module in each implementation. Agent keywords
+are not added to `KEYWORDS`. Phrasebooks are validated by the core rules and any
+problems are retained in the result, but entries do not apply inside an agent
+request. A phrasebook meaning that selects an agent dialect is not a valid core
+shorthand. This keeps learned wording from silently changing the agent or
+losing its dialect metadata.
+
+### Klaxon
+
+```text
+klaxon probe <host> for <CVE> [<connector> <CVE> ...]
+    [<connector> fix]
+    [<connector> report back]
+    [<connector> store as kit]
+```
+
+There is exactly one `probe`, first. `fix`, `report back` and `store as kit` may
+each occur at most once, in any supplied order after the probe. Each step and
+each additional CVE needs one or more connectors, using the existing marks and
+`and`, `but`, `then` words. Trailing connector runs are allowed. The words inside
+`klaxon probe`, `report back` and `store as kit`, and the host/`for`/first-CVE
+sequence, must be consecutive tokens: punctuation or a line break inside them
+is an error. Spaces and tabs separate words normally.
+
+The host is an unquoted word containing ASCII DNS labels, each 1–63 characters,
+with alphanumeric ends and alphanumeric or hyphen interiors. Labels are joined
+by dots; the whole host is at most 253 characters before an optional terminal
+dot. Single-label and numeric hosts are syntactically valid. A single terminal
+dot must be directly adjacent to the host and is removed. Schemes, paths, ports,
+empty labels and quoted hosts are invalid. The normalized target is ASCII
+lowercase. This validates syntax; resolving addresses, checking ownership and
+choosing permitted targets belong to the executor.
+
+A CVE is an unquoted word matching ASCII `CVE-[0-9]{4}-[0-9]{4,}`,
+case-insensitively. There is no upper bound of five digits on the sequence
+number. Normalize CVEs to uppercase and remove duplicates, preserving their
+first occurrence order. Parsing does not look up CVEs or establish host impact.
+
+| Clause type | Fields | Span |
+|---|---|---|
+| `probe` | `target` (normalized host), `cves` (list) | `probe` through the last CVE token, including a duplicate CVE if last |
+| `fix` | none | The `fix` token |
+| `report_back` | none | `report` through `back` |
+| `store_kit` | none | `store` through `kit` |
+
+Clauses preserve request order. Spans use the existing zero-based code-point
+contract and exclude the agent prefix and separating connectors.
+
+Any syntax error rejects the entire agent request: `clauses` is empty. Emit one
+error with code `invalid_agent_request`, message
+`Expected: klaxon probe <host> for <CVE> [and <CVE>], fix, report back, store as kit.`,
+and the span of the first offending token, or `[length, length]` for a missing
+required token at the end. A duplicate step is identified at its first keyword,
+before reading the rest of that step. Errors use the usual sort order.
+
+The exact request
+
+```zhql
+klaxon probe web01.coolframes.com for CVE-2026-109618 and CVE-2026-109619, fix, report back, store as kit
+```
+
+produces:
+
+```json
+{
+  "zhql": "0.3",
+  "dialect": "klaxon",
+  "clauses": [
+    { "type": "probe", "target": "web01.coolframes.com", "cves": ["CVE-2026-109618", "CVE-2026-109619"], "span": [7, 73] },
+    { "type": "fix", "span": [75, 78] },
+    { "type": "report_back", "span": [80, 91] },
+    { "type": "store_kit", "span": [93, 105] }
+  ],
+  "errors": []
+}
+```
+
+### Execution contract
+
+The parser performs no I/O. A consuming agent checks capabilities and target
+scope before acting, and reports unsupported actions explicitly.
+
+For Klaxon, `probe` requests evidence for the named CVEs on the target. `fix`
+requests remediation of confirmed applicable findings and subsequent
+verification. `report back` requests a private account of evidence, changes,
+verification and unresolved findings; it does not request public publication.
+`store as kit` requests a reusable workflow recipe with target parameters,
+CVE scope, steps, prerequisites, verification criteria and evidence references.
+Execution outcomes remain distinct from the recipe. Credentials and transient
+session material do not belong in the kit.
+
+These clauses express the requested workflow, not completed actions. In
+particular, emitting `fix` cannot resolve a finding without verification, and
+emitting `store_kit` cannot claim a kit was persisted. The executor may need to
+schedule prerequisites (such as remediation verification before a final
+report); the parser preserves the user's clause order rather than inventing
+execution results.
 
 ## Input
 

@@ -1,7 +1,7 @@
 # ЖQL
 
 ЖQL ("Zh", typed `zhql`) is the Zero-Hassle Query Language: a request for an
-application in one line of plain words.
+application or agent in one line of plain words.
 
 ```
 clone reddit.com, call it Savor, and tailor it to chefs
@@ -46,6 +46,37 @@ per line and `# ` comment lines; see [examples/savor.zhql](examples/savor.zhql).
 
 The parser only reads the request. Deciding what `reddit.com` or `relay` means
 belongs to whatever consumes the result.
+
+## Agent dialects
+
+Each agent owns its vocabulary. An unquoted agent name at the start selects its
+dialect; the first supported agent is **Klaxon**:
+
+```zhql
+klaxon probe web01.coolframes.com for CVE-2026-109618 and CVE-2026-109619, fix, report back, store as kit
+```
+
+All four parsers and command-line tools accept this request through their existing
+entry points. The result adds `"dialect": "klaxon"` and emits a `probe` clause with
+`target` and `cves`, followed by `fix`, `report_back` and `store_kit` clauses. The
+host and CVEs are normalized; clause spans still refer to the original input.
+See [examples/klaxon.zhql](examples/klaxon.zhql).
+
+`fix`, `report back` and `store as kit` are optional. Probe-only requests work,
+and CVEs can be joined with the usual ЖQL connectors. Invalid hosts, CVEs,
+unknown steps and duplicate steps produce an `invalid_agent_request` error and
+no actionable clauses. CVE identifiers are checked for syntax, not existence.
+
+The shared application language keeps its own vocabulary: `probe` and `fix`
+without the `klaxon` prefix remain free text. Phrasebooks cannot switch dialects
+or replace an agent's grammar. New agents belong in separate dialect modules,
+with matching conformance cases across all four languages; they do not add
+unrelated verbs to the core keyword table.
+
+Parsing records intent. Klaxon's executor owns probing, remediation and
+verification, private reporting, and storing a reusable workflow kit. A parsed
+command does not claim any of those actions have completed. The grammar and
+execution contract are in [Agent dialects](SPEC.md#agent-dialects).
 
 ## Phrasebooks
 
